@@ -1,0 +1,207 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{booktabs}
+
+\title{Your Report Title}
+\author{Your Name}
+\date{\today} % You can replace \today with a specific date
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+
+    \includegraphics[width=0.4\textwidth]{Picture 1.png} 
+    \vspace{1cm}
+    
+    \LARGE
+    \textbf{Vilnius Gedemino Technical University} \\
+    \textbf{Faculty of Economics} \\
+    \vspace{1.5cm}
+
+    \Huge
+    \textbf{Comparison of two algorithms} \\
+    \vspace{2cm}
+
+    \Large
+    \textbf{Author:} \\
+    Ivan Anton\\
+    \vspace{1cm}
+
+    \large
+    \textbf{Date:} \\
+    \today % Or replace \today with a specific date
+
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+This report delves into the comparative analysis of two essential sorting algorithms: Selection Sort and Shell Sort. Sorting algorithms are pivotal in computer science, influencing the efficiency of data processing across diverse applications. Selection Sort, a straightforward method, repeatedly selects the minimum element, while Shell Sort, an advanced variation, employs a unique gap sequence for efficient sorting. Through meticulous benchmarking, we aim to uncover the strengths and weaknesses of these algorithms, providing valuable insights into their real-world applicability and efficiency under different scenarios.
+
+\vspace{1.5cm}
+
+\section{What are sorting Algorithms?}
+
+Sorting algorithms are step-by-step procedures for arranging elements in a specific order. The primary objective of sorting is to organize data in a structured manner, making it easier to search, retrieve, and analyze. Sorting is a fundamental operation in computer science and plays a crucial role in various applications, including database management, data processing, and information retrieval.
+
+There are numerous sorting algorithms, each with its own set of rules and procedures for rearranging elements. The choice of a sorting algorithm depends on factors such as the size of the dataset, the distribution of data, and the specific requirements of the application.
+
+\vspace{0.5cm}
+
+\begin{center}
+    \textbf{\fontsize{14}{16}\selectfont Common Sorting Algorithms}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Bubble Sort:} Compares and swaps adjacent elements until the entire list is sorted.
+    \item \textbf{Insertion Sort:} Builds the sorted list one element at a time by repeatedly taking elements from the unsorted part and inserting them into their correct position.
+    \item \textbf{Selection Sort:} Divides the list into sorted and unsorted portions, repeatedly selects the smallest (or largest) element from the unsorted part and adds it to the sorted part.
+    \item \textbf{Merge Sort:} Divides the list into smaller sublists, recursively sorts them, and then merges them to produce a sorted list.
+    \item \textbf{Quick Sort:} Selects a 'pivot' element, partitions the other elements into two sublists according to whether they are less than or greater than the pivot, and then recursively sorts the sublists.
+    \item \textbf{Heap Sort:} Builds a binary heap and repeatedly extracts the maximum element from it.
+    \item \textbf{Shell Sort:} A variation of insertion sort that allows the exchange of items that are far apart.
+\end{itemize}
+
+ \vspace{1.5cm}
+ 
+\section{Selection sort}
+Selection Sort is a simple sorting algorithm that works by repeatedly finding the minimum element from the unsorted part of the array and putting it at the beginning. The algorithm maintains two subarrays: the sorted subarray and the unsorted subarray.
+
+\begin{center}
+    The steps of the Selection Sort algorithm are as follows:
+\begin{enumerate}
+    \item Find the minimum element in the unsorted subarray.
+    \item Swap the found minimum element with the first element.
+    \item Move the boundary between the sorted and unsorted subarrays one element to the right.
+\end{enumerate}
+
+The process is repeated until the entire array is sorted.
+\end{center}
+\begin{lstlisting}[language=C++, caption={Selection Sort in C++},label=selection-sort]
+#include <iostream>
+
+void selectionSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j < n; ++j) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        // Swap the found minimum element with the first element
+        int temp = arr[i];
+        arr[i] = arr[minIndex];
+        arr[minIndex] = temp;
+    }
+}
+
+int main() {
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    selectionSort(arr, n);
+
+    std::cout << "Sorted array: ";
+    for (int i = 0; i < n; i++) {
+        std::cout << arr[i] << " ";
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\section{Shell sort}
+
+Shell Sort is an in-place comparison-based sorting algorithm. It starts by sorting pairs of elements far apart from each other and progressively reduces the gap between elements to be compared. The final step of Shell Sort is a simple insertion sort, but by this point, the data is already partially sorted.
+
+\begin{center}
+    The steps of the Shell Sort algorithm are as follows:
+    \begin{enumerate}
+        \item Choose a gap sequence, which determines the gaps between elements to be compared.
+        \item Starting with the largest gap, perform an insertion sort on sublists with elements spaced by the chosen gap.
+        \item Reduce the gap and repeat step 2 until the gap becomes 1, at which point a final insertion sort is performed.
+    \end{enumerate}
+
+    The process results in a partially sorted array, making the final insertion sort more efficient.
+\end{center}
+
+\begin{lstlisting}[language=C++, caption={Shell Sort in C++},label=shell-sort]
+#include <iostream>
+
+void shellSort(int arr[], int n) {
+    for (int gap = n / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < n; ++i) {
+            int temp = arr[i];
+            int j;
+
+
+
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            arr[j] = temp;
+        }
+    }
+}
+
+int main() {
+    int arr[] = {64, 25, 12, 22, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    shellSort(arr, n);
+
+    std::cout << "Sorted array: ";
+    for (int i = 0; i < n; i++) {
+        std::cout << arr[i] << " ";
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+
+\section{Comparison Selection and Shell algorithms}
+In this section, we present a comparison of the Selection Sort and Shell Sort algorithms based on the execution time and the number of swaps performed for different data sets.
+\subsection{Table with Time and Swaps}
+
+Table 1 presents the number of interation and execution time (in microseconds) for both algorithms across various data sets.
+
+\includegraphics[width=1.2\textwidth]{Screenshot 2023-11-29 at 14.27.45.png} 
+
+\subsection{Graphs with Time and Swaps}
+Figure 1 and 2 visually represents the execution time for both algorithms.
+
+\includegraphics[width=1.2\textwidth]{Screenshot 2023-11-29 at 21.18.50.png} 
+
+\subsection{Discuss about output value}
+
+\begin{center}
+Time Comparison
+\end{center}
+For both algorithms, Shell Sort consistently outperforms Selection Sort in terms of time.
+The time taken by Shell Sort remains relatively stable across different scenarios (unsorted, sorted, and reverse sorted), showcasing its efficiency.
+Selection Sort's time increases significantly with larger dataset sizes and varies noticeably between sorted, unsorted, and reverse sorted scenarios.
+
+\begin{center}
+Swaps Comparison:
+\end{center}
+
+In terms of swaps, Selection Sort demonstrates a different pattern compared to time.
+Selection Sort requires more swaps as the dataset becomes more unsorted, and the number of swaps decreases when the data is already sorted.
+Shell Sort consistently performs a high number of swaps regardless of the initial state of the dataset.
+The number of swaps for both algorithms increases with larger dataset sizes, as expected.
+
+\section{Conclusion}
+
+If the primary concern is minimizing the number of swaps, Shell Sort is less favorable compared to Selection Sort, especially when the dataset is mostly sorted.
+However, if the emphasis is on overall efficiency, considering both time and swaps, Shell Sort is a more reliable choice. It consistently provides better time performance across different scenarios, and its additional swaps may be acceptable in practical applications.
+It's important to note that the efficiency of sorting algorithms can vary based on the specific characteristics of the dataset and the implementation details. The choice between Selection Sort and Shell Sort depends on the specific requirements and constraints of the given problem.
+
+\end{document}

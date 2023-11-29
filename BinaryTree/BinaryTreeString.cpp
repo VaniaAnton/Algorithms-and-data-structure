@@ -1,3 +1,4 @@
+// Made by Miras Kamatay, EIRfuc-22, HW2 by Algorithms and Data Structures
 #include <iostream>
 #include <string>
 
@@ -10,14 +11,14 @@ struct BinaryTreeString
 
 struct DoubleDeque
 {
-    BinaryTreeString *data;
+    std::string data;
     DoubleDeque *next;
     DoubleDeque *prev;
 };
 
 struct DoubleStack
 {
-    BinaryTreeString *data;
+    std::string data;
     DoubleStack *next;
     DoubleStack *prev;
 };
@@ -58,7 +59,7 @@ BinaryTreeString *search(BinaryTreeString *tree, std::string data)
     return tree;
 }
 
-DoubleDeque *insertFront(DoubleDeque *head, BinaryTreeString *data)
+DoubleDeque *insertFront(DoubleDeque *head, std::string data)
 {
     DoubleDeque *node = new DoubleDeque;
     node->data = data;
@@ -71,16 +72,20 @@ DoubleDeque *insertFront(DoubleDeque *head, BinaryTreeString *data)
 
 void print(BinaryTreeString *tree)
 {
-    if (tree != NULL)
+    if (tree == NULL)
     {
-        print(tree->left);
-        std::cout << tree->data << std::endl;
-        print(tree->right);
+        std::cout << "Tree is empty" << std::endl;
+        return;
     }
     else
-        return;
+    {
+        if (tree->left != NULL)
+            print(tree->left);
+        std::cout << tree->data << " ";
+        if (tree->right != NULL)
+            print(tree->right);
+    }
 }
-
 void print(DoubleDeque *head)
 {
     DoubleDeque *temp = head;
@@ -92,7 +97,7 @@ void print(DoubleDeque *head)
     else
         while (temp != NULL)
         {
-            std::cout << temp->data->data << " ";
+            std::cout << temp->data << " ";
             temp = temp->next;
         }
     std::cout << std::endl;
@@ -109,13 +114,52 @@ void print(DoubleStack *head)
     else
         while (temp != NULL)
         {
-            std::cout << temp->data->data << " ";
+            std::cout << temp->data << " ";
             temp = temp->next;
         }
     std::cout << std::endl;
 }
 
-DoubleDeque *pushFront(DoubleDeque *head, BinaryTreeString *data)
+BinaryTreeString *deleteX(BinaryTreeString *tree, std::string x)
+{
+    BinaryTreeString *temp = tree;
+    if (tree == NULL)
+        return NULL;
+    if (x > tree->data)
+        tree->right = deleteX(tree->right, x);
+    else if (x < tree->data)
+        tree->left = deleteX(tree->left, x);
+    else if (tree->left == NULL && tree->right == NULL)
+    {
+        delete temp;
+        return tree = NULL;
+    }
+
+    else if (tree->left == NULL || tree->right == NULL)
+    {
+        if (tree->left == NULL)
+            temp = tree->right;
+        else
+            temp = tree->left;
+        tree->data = temp->data;
+        tree->left = temp->left;
+        tree->right = temp->right;
+        tree = temp;
+        delete temp;
+        return tree;
+    }
+    else
+    {
+        BinaryTreeString *temp1 = tree->right;
+        while (temp1->left != NULL)
+            temp1 = temp1->left;
+        tree->data = temp1->data;
+        tree->right = deleteX(tree->right, temp1->data);
+    }
+    return tree;
+}
+
+DoubleDeque *pushFront(DoubleDeque *head, std::string data)
 {
     DoubleDeque *node = new DoubleDeque;
     node->data = data;
@@ -125,7 +169,7 @@ DoubleDeque *pushFront(DoubleDeque *head, BinaryTreeString *data)
         head->prev = node;
     return node;
 }
-DoubleDeque *pushBack(DoubleDeque *head, BinaryTreeString *data)
+DoubleDeque *pushBack(DoubleDeque *head, std::string data)
 {
     DoubleDeque *node = new DoubleDeque;
     node->data = data;
@@ -141,11 +185,14 @@ DoubleDeque *pushBack(DoubleDeque *head, BinaryTreeString *data)
     return head;
 }
 
-DoubleStack *push(DoubleStack *head, BinaryTreeString *newData)
+DoubleStack *push(DoubleStack *head, std::string data)
 {
     DoubleStack *node = new DoubleStack;
-    node->data = newData;
+    node->data = data;
     node->next = head;
+    node->prev = NULL;
+    if (head != NULL)
+        head->prev = node;
     return node;
 }
 
@@ -154,7 +201,7 @@ DoubleDeque *insertGreaterThan5AtTheBeginning(DoubleDeque *&head, BinaryTreeStri
     if (tree != NULL)
     {
         if (tree->data.length() > 5)
-            head = insertFront(head, tree);
+            head = insertFront(head, tree->data);
         insertGreaterThan5AtTheBeginning(head, tree->left);
         insertGreaterThan5AtTheBeginning(head, tree->right);
     }
@@ -169,7 +216,7 @@ DoubleDeque *insertGreaterThan5AndLessThan11AtTheEnd(DoubleDeque *&head, BinaryT
     if (tree != NULL)
     {
         if (tree->data.length() > 5 && tree->data.length() < 11)
-            head = insertFront(head, tree);
+            head = insertFront(head, tree->data);
         insertGreaterThan5AndLessThan11AtTheEnd(head, tree->left);
         insertGreaterThan5AndLessThan11AtTheEnd(head, tree->right);
     }
@@ -179,22 +226,24 @@ DoubleDeque *insertGreaterThan5AndLessThan11AtTheEnd(DoubleDeque *&head, BinaryT
     return head;
 }
 
-DoubleStack *inputGreaterThan10FromTheTreeToTheStack(DoubleStack *&head, BinaryTreeString *&tree)
+DoubleStack *removeGreaterThan10FromTheTreeAndInputToTheStack(DoubleStack *head, BinaryTreeString *tree)
 {
     if (tree != NULL)
     {
         if (tree->data.length() > 10)
         {
-            head = push(head, tree);
+            head = push(head, tree->data);
+            tree = deleteX(tree, tree->data);
         }
-        inputGreaterThan10FromTheTreeToTheStack(head, tree->left);
-        inputGreaterThan10FromTheTreeToTheStack(head, tree->right);
+        if (tree->left != NULL)
+            removeGreaterThan10FromTheTreeAndInputToTheStack(head, tree->left);
+        if (tree->right != NULL)
+            removeGreaterThan10FromTheTreeAndInputToTheStack(head, tree->right);
     }
     else
-        return NULL;
+        return nullptr;
     return head;
 }
-
 void removeByPrinting(DoubleDeque *&head, DoubleStack *&head1)
 
 {
@@ -202,78 +251,48 @@ void removeByPrinting(DoubleDeque *&head, DoubleStack *&head1)
         std::cout << "Both deque and stack are empty" << std::endl;
     else if (head == NULL && head1 != NULL)
     {
+        std::cout << "Stack: " << std::endl;
         while (head1 != NULL)
         {
             DoubleStack *temp1 = head1;
-            std::cout << temp1->data->data << " ";
+            std::cout << temp1->data << " ";
             head1 = head1->next;
             delete temp1;
         }
     }
     else if (head != NULL && head1 == NULL)
     {
+        std::cout << "Deque: " << std::endl;
         while (head != NULL)
         {
             DoubleDeque *temp = head;
-            std::cout << temp->data->data << " ";
+            std::cout << temp->data << " ";
             head = head->next;
             delete temp;
         }
     }
     else
     {
+        std::cout << "Deque: " << std::endl;
         while (head != NULL)
         {
             DoubleDeque *temp = head;
-            std::cout << temp->data->data << " ";
+            std::cout << temp->data << " ";
             head = head->next;
             delete temp;
         }
+        std::cout << std::endl;
+        std::cout << "Stack: " << std::endl;
         while (head1 != NULL)
         {
             DoubleStack *temp1 = head1;
-            std::cout << temp1->data->data << " ";
+            std::cout << temp1->data << " ";
             head1 = head1->next;
             delete temp1;
         }
     }
 }
 
-BinaryTreeString *deleteX(BinaryTreeString *tree, std::string x)
-{
-    if (tree == NULL)
-        std::cout << "Tree is empty" << std::endl;
-    return NULL;
-    if (x > tree->data)
-        tree->right = deleteX(tree->right, x);
-    else if (x < tree->data)
-        tree->left = deleteX(tree->left, x);
-    else if (tree->left == NULL && tree->right == NULL)
-    {
-        free(tree);
-        return NULL;
-    }
-
-    else if (tree->left == NULL || tree->right == NULL)
-    {
-        BinaryTreeString *temp;
-        if (tree->left == NULL)
-            temp = tree->right;
-        else
-            temp = tree->left;
-        free(tree);
-        return temp;
-    }
-    else
-    {
-        BinaryTreeString *temp = tree->right;
-        while (temp->left != NULL)
-            temp = temp->left;
-        tree->data = temp->data;
-        tree->right = deleteX(tree->right, temp->data);
-    }
-    return tree;
-}
 int main()
 {
     BinaryTreeString *tree = NULL;
@@ -292,7 +311,7 @@ int main()
         std::cout << "Choose an option: " << std::endl;
         std::cout << "- - - - - - - - - " << std::endl;
         std::cout << "1. Insert surnames " << std::endl;
-        std::cout << "2. Delete one surnames from the tree " << std::endl;
+        std::cout << "2. Delete surname from the tree " << std::endl;
         std::cout << "3. Find surname in the tree " << std::endl;
         std::cout << "4. Print the tree " << std::endl;
         std::cout << "5. Insert all surnames from the tree with a length greater than 5 at the beginning of the deque " << std::endl;
@@ -307,9 +326,9 @@ int main()
         {
         case 1:
             int n;
-            std::cout << "How many elements you want to insert: ";
+            std::cout << "How many elements you want to insert? ";
             std::cin >> n;
-            std::cout << "Enter data: ";
+            std::cout << "Enter elements here: ";
             for (int i = 0; i < n; i++)
             {
                 std::cin >> data;
@@ -317,22 +336,27 @@ int main()
             }
             break;
         case 2:
-            std::cout << "Enter surname to delete: ";
+            std::cout << "Which surname do you want to delete? ";
             std::cin >> data;
             tree = deleteX(tree, data);
             break;
         case 3:
-            std::cout << "Enter Surname to find: ";
+            std::cout << "Which surname are you looking for? ";
             std::cin >> data;
             temp = search(tree, data);
             if (temp != NULL)
-                std::cout << "Surname found" << std::endl;
+                std::cout << "Surname is found in tree" << std::endl;
             else
-                std::cout << "Surname not found" << std::endl;
+                std::cout << "Surname is not found in tree" << std::endl;
             break;
         case 4:
             std::cout << "Tree: " << std::endl;
-            print(tree);
+            if (temp == NULL)
+            {
+                std::cout << "Tree is empty" << std::endl;
+            }
+            else
+                print(tree);
             break;
         case 5:
             head = insertGreaterThan5AtTheBeginning(head, tree);
@@ -346,13 +370,13 @@ int main()
             else
                 while (temp1 != NULL)
                 {
-                    std::cout << temp1->data->data << " ";
+                    std::cout << temp1->data << " ";
                     temp1 = temp1->next;
                 }
             delete temp1;
             break;
         case 6:
-            head = insertGreaterThan5AndLessThan11AtTheEnd(head, tree);
+            head = insertGreaterThan5AndLessThan11AtTheEnd(head, temp);
             temp1 = head;
             std::cout << "Deque: " << std::endl;
             if (temp1 == NULL)
@@ -363,24 +387,24 @@ int main()
             else
                 while (temp1 != NULL)
                 {
-                    std::cout << temp1->data->data << " ";
+                    std::cout << temp1->data << " ";
                     temp1 = temp1->next;
                 }
             delete temp1;
             break;
         case 7:
-            head1 = inputGreaterThan10FromTheTreeToTheStack(head1, tree);
+            head1 = removeGreaterThan10FromTheTreeAndInputToTheStack(head1, tree);
             temp2 = head1;
             std::cout << "Stack: " << std::endl;
             if (temp2 == NULL)
             {
-                std::cout << "Tree is empty" << std::endl;
+                std::cout << "Stack is empty" << std::endl;
                 break;
             }
             else
                 while (temp2 != NULL)
                 {
-                    std::cout << temp2->data->data << " ";
+                    std::cout << temp2->data << " ";
                     temp2 = temp2->next;
                 }
             delete temp2;
